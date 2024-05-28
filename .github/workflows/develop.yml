@@ -1,27 +1,43 @@
-name: Build module and deploy to skeleton dev-env
+name: Create or Update PR from Develop to Master
 
 on:
   push:
     branches:
-      - "environment/**"
+      - develop
 
 jobs:
-  setup:
-    uses: rzelian/cicd-tests-dev/.github/workflows/step-setup.yml@master
-    secrets: inherit
+  create-update-pr:
+    if: ${{ startsWith(github.event.head_commit.message, 'Merge branch \'feature/') }}
+    runs-on: ubuntu-latest
 
-  build_module:
-    needs: setup
-    secrets: inherit
-    uses: rzelian/cicd-tests-dev/.github/workflows/step-build-module.yml@master
-    with:
-      dry_run: false
-      is_master: false
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-  deploy-skeleton:
-    needs: [setup, build_module]
-    secrets: inherit
-    uses: dev-ali-anwar/ci-cd/.github/workflows/step-deploy-skeleton.yml@master
-    with:
-      is_master: false
-      new_package_version: ${{ needs.build_module.outputs.new_package_version }}
+    - name: Set up GitHub CLI
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Authenticate with GitHub CLI
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+    - name: Check for existing PR from develop to master
+      id: check_pr
+      run: |
+        PR_URL=$(gh pr list --base master --head develop --json url --jq '.[0].url')
+        echo "PR_URL=$PR_URL" >> $GITHUB_ENV
+
+    - name: Create or update PR
+      env:
+        PR_URL: ${{ env.PR_URL }}
+      run: |
+        if [ -z "$PR_URL" ]; then
+          gh pr create --base master --head develop --title "Sync develop to master" --body "This PR merges the latest changes from develop to master."
+        else
+          echo "PR already exists: $PR_URL"
+          gh pr comment "$PR_URL" --body "Feature branch merged into develop. Please review and merge this PR."
+        fi
