@@ -1,0 +1,27 @@
+name: Build module and deploy to skeleton master
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  setup:
+    uses: rzelian/cicd-tests-dev/.github/workflows/step-setup.yml@master
+    secrets: inherit
+
+  build_module:
+    needs: setup
+    secrets: inherit
+    uses: rzelian/cicd-tests-dev/.github/workflows/step-build-module.yml@master
+    with:
+      dry_run: false
+      is_master: true
+
+  deploy-skeleton:
+    needs: [setup, build_module]
+    secrets: inherit
+    uses: rzelian/cicd-tests-dev/.github/workflows/step-deploy-skeleton.yml@master
+    with:
+      is_master: true
+      new_package_version: ${{needs.build_module.outputs.new_package_version}}

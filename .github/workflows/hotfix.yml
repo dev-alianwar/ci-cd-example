@@ -1,0 +1,23 @@
+name: Pull request
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  setup:
+    uses: rzelian/cicd-tests-dev/.github/workflows/step-setup.yml@master
+    secrets: inherit
+
+  unit-tests:
+    needs: setup
+    secrets: inherit
+    uses: rzelian/cicd-tests-dev/.github/workflows/step-unit-tests.yml@master
+
+  build_module:
+    needs: [setup, unit-tests]
+    secrets: inherit
+    uses: rzelian/cicd-tests-dev/.github/workflows/step-build-module.yml@master
+    with:
+      dry_run: true
+      is_master: false
