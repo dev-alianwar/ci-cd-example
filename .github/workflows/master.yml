@@ -7,13 +7,13 @@ on:
 
 jobs:
   setup:
-    uses: dev-alianwar/ci-cd-example/.github/workflows/step-setup.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/setup.yml@master
     secrets: inherit
 
   build_module:
     needs: setup
     secrets: inherit
-    uses: dev-alianwar/ci-cd-example/.github/workflows/step-build-module.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/build-module.yml@master
     with:
       dry_run: false
       is_master: true
@@ -21,7 +21,7 @@ jobs:
   deploy-skeleton:
     needs: [setup, build_module]
     secrets: inherit
-    uses: dev-alianwar/ci-cd-example/.github/workflows/step-deploy-skeleton.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/deploy.yml@master
     with:
       is_master: true
       new_package_version: ${{needs.build_module.outputs.new_package_version}}
