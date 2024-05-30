@@ -6,17 +6,18 @@ on:
       - "master"
 
 env:
-  REPO: dev-alianwar/ci-cd-example
+  REPO_OWNER: dev-alianwar
+  REPO_NAME: ci-cd-example
 
 jobs:
   setup:
-    uses: ${{ env.REPO }}/.github/workflows/setup.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/setup.yml@master
     with:
       secrets: inherit
 
   build_module:
     needs: setup
-    uses: ${{ env.REPO }}/.github/workflows/build-module.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/build-module.yml@master
     with:
       dry_run: false
       is_master: true
@@ -24,7 +25,7 @@ jobs:
 
   deploy-skeleton:
     needs: [setup, build_module]
-    uses: ${{ env.REPO }}/.github/workflows/deploy.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/deploy.yml@master
     with:
       is_master: true
       new_package_version: ${{ needs.build_module.outputs.new_package_version }}
