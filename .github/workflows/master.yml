@@ -6,9 +6,9 @@ on:
       - "master"
 secrets:
   AWS_REGION: "${{ secrets.AWS_REGION }}"
-  AWS_ACCESS_KEY_ID: "${{ secrets.AWS_REGION }}"
-  AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_REGION }}"
-  GA_PATH: "${{ secrets.GA_PATH }}"
+  AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+  AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+  GH_PAT: "${{ secrets.GH_PAT }}"
 
 env:
   REPO_OWNER: dev-alianwar
