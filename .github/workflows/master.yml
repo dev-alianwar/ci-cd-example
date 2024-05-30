@@ -15,16 +15,16 @@ jobs:
     with:
       secrets: inherit
 
-  build_module:
+  build:
     needs: setup
-    uses: dev-alianwar/ci-cd-example/.github/workflows/build-module.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/build.yml@master
     with:
       dry_run: false
       is_master: true
     secrets: inherit
 
-  deploy-skeleton:
-    needs: [setup, build_module]
+  deploy:
+    needs: [setup, build]
     uses: dev-alianwar/ci-cd-example/.github/workflows/deploy.yml@master
     with:
       is_master: true

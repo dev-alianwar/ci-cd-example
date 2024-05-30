@@ -6,18 +6,18 @@ on:
 
 jobs:
   setup:
-    uses: dev-alianwar/ci-cd-example/.github/workflows/step-setup.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/setup.yml@master
     secrets: inherit
 
   unit-tests:
     needs: setup
     secrets: inherit
-    uses: dev-alianwar/ci-cd-example/.github/workflows/step-unit-tests.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/test.yml@master
 
   build_module:
     needs: [setup, unit-tests]
     secrets: inherit
-    uses: dev-alianwar/ci-cd-example/.github/workflows/step-build-module.yml@master
+    uses: dev-alianwar/ci-cd-example/.github/workflows/build.yml@master
     with:
       dry_run: true
       is_master: false
