@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - "master"
-secrets:
-  AWS_REGION: "${{ secrets.AWS_REGION }}"
-  AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-  AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-  GH_PAT: "${{ secrets.GH_PAT }}"
 
 env:
   REPO_OWNER: dev-alianwar
@@ -17,8 +12,7 @@ env:
 jobs:
   setup:
     uses: dev-alianwar/ci-cd-example/.github/workflows/setup.yml@master
-    with:
-      secrets: inherit
+    secrets: inherit
 
   build:
     needs: setup
@@ -30,7 +24,8 @@ jobs:
 
   update-version:
     runs-on: ubuntu-latest
-
+    secrets: inherit
+  
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -46,8 +41,9 @@ jobs:
 
   deploy:
     needs: [setup, build]
+    secrets: inherit
     uses: dev-alianwar/ci-cd-example/.github/workflows/deploy.yml@master
     with:
       is_master: true
       new_package_version: ${{ needs.build_module.outputs.new_package_version }}
-    secrets: inherit
+   
