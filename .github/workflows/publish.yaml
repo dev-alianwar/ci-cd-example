@@ -5,8 +5,7 @@ on:
     paths-ignore:
       - 'deploy/**'
     branches:
-    - master
-    - environment/**
+    - feature/**
 
 jobs:
   push:

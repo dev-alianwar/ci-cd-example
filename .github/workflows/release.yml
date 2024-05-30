@@ -3,7 +3,7 @@ name: Update Version on Release Branch Merge
 on:
   push:
     branches:
-      - master
+      - release
 
 jobs:
   update-version:
