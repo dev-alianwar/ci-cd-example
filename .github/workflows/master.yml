@@ -5,28 +5,18 @@ on:
     branches:
       - "master"
 
+env:
+  REPO: dev-alianwar/ci-cd-example
+
 jobs:
-  extract_repo:
-    runs-on: ubuntu-latest
-    outputs:
-      repo: ${{ steps.get_repo.outputs.repo }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Get repository reference
-        id: get_repo
-        run: echo "::set-output name=repo::$(git config --get remote.origin.url | sed -e 's/^https:\/\/github\.com\///' -e 's/\.git$//')"
-
   setup:
-    needs: extract_repo
-    uses: ${{ needs.extract_repo.outputs.repo }}/.github/workflows/setup.yml@master
+    uses: ${{ env.REPO }}/.github/workflows/setup.yml@master
     with:
       secrets: inherit
 
   build_module:
     needs: setup
-    uses: ${{ needs.extract_repo.outputs.repo }}/.github/workflows/build-module.yml@master
+    uses: ${{ env.REPO }}/.github/workflows/build-module.yml@master
     with:
       dry_run: false
       is_master: true
@@ -34,7 +24,7 @@ jobs:
 
   deploy-skeleton:
     needs: [setup, build_module]
-    uses: ${{ needs.extract_repo.outputs.repo }}/.github/workflows/deploy.yml@master
+    uses: ${{ env.REPO }}/.github/workflows/deploy.yml@master
     with:
       is_master: true
       new_package_version: ${{ needs.build_module.outputs.new_package_version }}
