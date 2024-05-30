@@ -1,4 +1,4 @@
-name: Build module and deploy to skeleton master
+name: Build module and deploy to Cloudfront
 
 on:
   push:
@@ -8,20 +8,21 @@ on:
 jobs:
   setup:
     uses: dev-alianwar/ci-cd-example/.github/workflows/setup.yml@master
-    secrets: inherit
+    with:
+      secrets: inherit
 
   build_module:
     needs: setup
-    secrets: inherit
     uses: dev-alianwar/ci-cd-example/.github/workflows/build-module.yml@master
     with:
       dry_run: false
       is_master: true
+    secrets: inherit
 
   deploy-skeleton:
     needs: [setup, build_module]
-    secrets: inherit
     uses: dev-alianwar/ci-cd-example/.github/workflows/deploy.yml@master
     with:
       is_master: true
-      new_package_version: ${{needs.build_module.outputs.new_package_version}}
+      new_package_version: ${{ needs.build_module.outputs.new_package_version }}
+    secrets: inherit
