@@ -1,38 +1,70 @@
-name: Build Job
+name: Build module
 
-on: [workflow_call]
-
-jobs:
-  build-job:
-    runs-on: ubuntu-latest
-
-    with:
+on:
+  workflow_call:
+    inputs:
       dry_run:
         required: true
-        description: 'Flag to indicate dry run'
+        type: boolean
+
       is_master:
         required: true
-        description: 'Flag to indicate if it is the master branch'
+        type: boolean
 
+    outputs:
+      new_package_version:
+        value: ${{ jobs.build_module.outputs.new_package_version }}
+
+jobs:
+  build_module:
+    runs-on: [self-hosted, linux, x64]
+    timeout-minutes: 10
+    outputs:
+      new_package_version: ${{ steps.new_package_version.outputs.new_package_version }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          node-version: '20'
+          fetch-depth: 3
+          ref: ${{github.event.release.target_commitish}}
 
-      - name: Install npm dependencies
-        run: npm install
+      - name: Restore node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ github.sha }}
 
-      - name: Verify npm installation
-        run: npm --version
-
-      - name: Build Task
+      - name: Setup git bot user
         run: |
-          echo "Dry Run: ${{ inputs.dry_run }}"
-          echo "Is Master: ${{ inputs.is_master }}"
+          git config --local user.email "bot@gmail.com"
+          git config --local user.name "GitHub Action"
 
-      - name: Build module
+      - name: Set package version (master/development)
+        if: ${{ !inputs.dry_run && inputs.is_master }}
+        run: |
+          git tag -l | xargs git tag -d
+          git fetch --tags -f
+          npm incrementVersion
+          git tag v$(jq -r .version package.json)
+          git push --tags
+
+      - name: Set package version (dev-env)
+        if: ${{ !inputs.dry_run && !inputs.is_master}}
+        run: |
+          git tag -l | xargs git tag -d
+          git fetch --tags -f
+          BRANCH=${GITHUB_REF##*/} npm incrementBranchVersion
+          git tag v$(jq -r .version package.json)
+          git push --tags
+
+      - name: Output package version
+        id: new_package_version
+        run: echo "::set-output name=new_package_version::$(jq -r .version package.json)"
+
+      - name: Build (dry-run)
+        if: ${{ inputs.dry_run }}
         run: npm run build
+
+      - name: Build (with new package version)
+        if: ${{ !inputs.dry_run }}
+        run: npm run build --environment PACKAGE_VERSION:v$(jq -r .version package.json),GIT_SHA:${{ github.sha }}
