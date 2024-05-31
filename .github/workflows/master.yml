@@ -22,7 +22,7 @@ jobs:
 
   update-version:
     runs-on: ubuntu-latest
-      
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -32,10 +32,9 @@ jobs:
       run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
 
     - name: Update Version
-      uses: ./.github/workflows/update-version.yml
-      secrets:
-        access-token: ${{ secrets.GA_PAT }}
+      uses: ./.github/workflows/update-version.yml        
       with:
+        access-token: ${{ secrets.GA_PAT }} 
         branch: ${{ steps.determine_branch.outputs.branch }}
 
   # deploy:
