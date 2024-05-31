@@ -1,12 +1,7 @@
-name: Setup Job
-
 on: [workflow_call]
 
 jobs:
   setup-job:
-    runs-on: ubuntu-latest
-
-  setup-node:
     runs-on: ubuntu-latest
 
     steps:
