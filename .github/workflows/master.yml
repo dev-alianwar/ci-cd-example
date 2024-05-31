@@ -13,9 +13,9 @@ jobs:
   setup:
     uses: dev-alianwar/ci-cd-example/.github/workflows/setup.yml@master
 
-  build:
-    needs: setup
-    uses: dev-alianwar/ci-cd-example/.github/workflows/build.yml@master
+  # build:
+  #   needs: setup
+  #   uses: dev-alianwar/ci-cd-example/.github/workflows/build.yml@master
 
   # update-version:
   #   runs-on: ubuntu-latest
