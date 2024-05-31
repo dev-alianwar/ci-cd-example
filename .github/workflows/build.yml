@@ -6,6 +6,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    inputs:
+      dry_run:
+        required: true
+        description: 'Flag to indicate dry run'
+      is_master:
+        required: true
+        description: 'Flag to indicate if it is the master branch'
 
     steps:
     - name: Checkout repository
