@@ -1,23 +1,35 @@
-name: Setup
+name: Setup Job
 
-on:
-  workflow_call:
+on: [workflow_call]
 
 jobs:
-  setup-node:
+  setup-job:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Setup Task
+        run: echo "Setup complete"
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'
+# name: Setup
 
-    - name: Install npm dependencies
-      run: npm install
+# on:
+#   workflow_call:
 
-    - name: Verify npm installation
-      run: npm --version
+# jobs:
+#   setup-node:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v2
+
+#     - name: Set up Node.js
+#       uses: actions/setup-node@v2
+#       with:
+#         node-version: '20'
+
+#     - name: Install npm dependencies
+#       run: npm install
+
+#     - name: Verify npm installation
+#       run: npm --version
