@@ -19,7 +19,7 @@ jobs:
     with:
       dry_run: false
       is_master: true
-      access_token: "${{ secrets.GH_PAT }}"
+      access_token: ${{ secrets.GH_PAT }}
 
   # update-version:
   #   runs-on: ubuntu-latest
