@@ -67,7 +67,6 @@ jobs:
           git tag -l | xargs git tag -d
           git fetch --tags -f
           npm run incrementVersion
-          git tag v$(jq -r .version package.json)
 
       - name: Push tags
         run: |
