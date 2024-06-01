@@ -2,6 +2,10 @@ name: Build Job
 
 on:
   workflow_call:
+    secrets:
+        access_token:
+          description: 'Personal access token'
+
     inputs:
       dry_run:
         required: true
@@ -9,10 +13,7 @@ on:
       is_master:
         required: true
         type: boolean
-      access_token:
-        required: true
-        type: string
-
+      
     outputs:
       new_package_version:
         value: ${{ jobs.build_module.outputs.new_package_version }}
