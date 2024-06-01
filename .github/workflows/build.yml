@@ -92,6 +92,7 @@ jobs:
               echo "$line"
             done
             }
+            git push origin master
 
       - name: Output package version
         id: output_version
