@@ -37,7 +37,7 @@ jobs:
 
       - name: Setup git bot user
         run: |
-          git config --local user.email "bot@gmail.com"
+          git config --local user.email "dev.alianwar@gmail.com"
           git config --local user.name "GitHub Action"
 
       - name: Setup Node
@@ -71,7 +71,8 @@ jobs:
       - name: Push tags
         run: |
           set -e
-          git push --tags 2>&1 | {
+          VERSION=$(jq -r .version package.json)
+          git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git --tags 2>&1 | {
             while IFS= read -r line; do
               if [[ $line == *"To https"* && $line == *"already exists"* ]]; then
                 echo "Tag already exists. Skipping push."
