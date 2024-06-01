@@ -58,7 +58,7 @@ jobs:
             echo "Working directory is clean."
             STASHED_CHANGES=false
           fi
-          
+
       - name: Set package version 
         if: ${{ !inputs.dry_run && inputs.is_master }}
         env:
@@ -68,7 +68,22 @@ jobs:
           git fetch --tags -f
           npm run incrementVersion
           git tag v$(jq -r .version package.json)
-          git push --tags
+
+      - name: Push tags
+        run: |
+          set -e
+          git push --tags 2>&1 | {
+            while IFS= read -r line; do
+              if [[ $line == *"To https"* && $line == *"already exists"* ]]; then
+                echo "Tag already exists. Skipping push."
+                exit 0
+              elif [[ $line == *"Permission denied"* ]]; then
+                echo "Permission denied. Make sure you have the necessary permissions."
+                exit 1
+              fi
+              echo "$line"
+            done
+            }
 
       - name: Output package version
         id: output_version
