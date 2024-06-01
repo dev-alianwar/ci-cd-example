@@ -73,6 +73,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           set -e
+          echo "GITHUB_TOKEN: $GITHUB_TOKEN"
+          echo "Repository URL: https://github.com/${{ github.repository }}.git"
           VERSION=$(jq -r .version package.json)
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags 2>&1 | {
             while IFS= read -r line; do
