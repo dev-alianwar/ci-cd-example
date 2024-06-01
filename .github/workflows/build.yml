@@ -16,7 +16,7 @@ on:
 
 jobs:
   build_module:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     outputs:
