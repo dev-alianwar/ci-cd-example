@@ -49,18 +49,3 @@ jobs:
           
           echo "Merged branch: $merged_branch"
           echo "::set-output name=branch::$merged_branch"
-
-      - name: Check if branch name starts with 'hotfix/'
-        run: |
-          branch_name="${{ steps.extract_branch.outputs.branch }}"
-          if [[ "$branch_name" == hotfix/*  ]]
-            echo "hotfix/* branch merged"
-            echo "::set-output name=merge_branch_type::hotfix"
-          else
-            echo "Branch does not start with hotfix/"
-            echo "::set-output name=merge_branch_type::none"
-          fi
-
-      - name: Abort workflow if branch name doesn't match criteria
-        if: ${{ steps.check_branch.outputs.merge_branch_type == 'none' }}
-        run: exit 1
