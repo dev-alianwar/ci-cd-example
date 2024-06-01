@@ -73,6 +73,7 @@ jobs:
           echo "::set-output name=branch::$merged_branch"
 
       - name: Check if branch name starts with 'feature/', 'fix/', or 'hotfix/'
+        id: branch_type
         run: |
           # Retrieve the branch name from the previous step's output
           branch_name="${{ steps.extract_branch.outputs.branch }}"
@@ -96,13 +97,13 @@ jobs:
             branch_type="none"
           fi
 
-          echo "::set-output name=merge_branch_type::$branch_type"
           # Echo the merged branch type for confirmation
-          echo "Merged branch type: $merge_branch_type"
+          echo "Merged branch type: $branch_type"
+          echo "::set-output name=merge_branch_type::$branch_type"
 
 
       - name: Abort workflow if branch name doesn't match criteria
-        if: ${{ steps.extract_branch.outputs.merge_branch_type == 'none' }} 
+        if: ${{ steps.branch_type.outputs.merge_branch_type == 'none' }} 
         run: exit 1
 
       - name: Setup Node
@@ -114,7 +115,7 @@ jobs:
         run: npm install
 
       - name: Increment Version
-        if: ${{ steps.check_branch.outputs.matched_branch == 'hotfix' }}
+        if: ${{ steps.branch_type.outputs.merge_branch_type == 'hotfix' }}
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
@@ -123,7 +124,7 @@ jobs:
           npm run incrementVersion
 
       - name: Increment Branch Version
-        if: ${{ steps.check_branch.outputs.matched_branch == 'feature' || steps.check_branch.outputs.matched_branch == 'fix' }}
+        if: ${{ steps.branch_type.outputs.merge_branch_type == 'feature' || steps.branch_type.outputs.merge_branch_type == 'fix' }}
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
@@ -132,7 +133,7 @@ jobs:
           npm run incrementBranchVersion
 
       - name: Push tags
-        if: ${{ steps.extract_branch.outputs.merge_branch_type != 'none' }} 
+        if: ${{ steps.branch_type.outputs.merge_branch_type != 'none' }} 
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
