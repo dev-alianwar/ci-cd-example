@@ -33,8 +33,13 @@ CLOUDFRONT_DISTRIBUTION_ID: Your CloudFront distribution ID.
 * This reusable GitHub Action workflow will streamline the process of deploying your Next.js application to S3 and invalidating the CloudFront cache automatically.
 
 
+## Create Github Secrets
 
-## Getting Started
+## Workflow permissions 
+Settings -> Actions -> General -> Workflow permissions
+You need to turn on Read and write permissions to push tags to github repository
+
+## Next.js Local development
 
 First, run the development server:
 
