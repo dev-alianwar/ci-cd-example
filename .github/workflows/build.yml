@@ -78,10 +78,10 @@ jobs:
           if [[ "$branch_name" == feature/* ]]; then
             echo "feature/* branch merged"
             echo "::set-output name=merge_branch_type::feature"
-          if [[ "$branch_name" == fix/* ]]; then
+          elif [[ "$branch_name" == fix/* ]]; then
             echo "fix/* branch merged"
             echo "::set-output name=merge_branch_type::fix"
-          else if [[ "$branch_name" == hotfix/*  ]]
+          elif [[ "$branch_name" == hotfix/* ]]; then
             echo "hotfix/* branch merged"
             echo "::set-output name=merge_branch_type::hotfix"
           else
