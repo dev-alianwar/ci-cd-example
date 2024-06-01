@@ -63,6 +63,22 @@ jobs:
             STASHED_CHANGES=false
           fi
 
+      - name: Extract branch name from merge commit
+        run: |
+          # Get the commit message of the head commit
+          commit_message=$(git log -1 --pretty=%B)
+          echo "Commit message: $commit_message"
+          
+          # Extract branch name from commit message
+          if [[ "$commit_message" =~ Merge\ branch\ \'([^\']+)\' ]]; then
+            merged_branch=${BASH_REMATCH[1]}
+          else
+            merged_branch="unknown"
+          fi
+          
+          echo "Merged branch: $merged_branch"
+          echo "::set-output name=branch::$merged_branch"
+
       - name: Set package version 
         if: ${{ !inputs.dry_run && inputs.is_master }}
         env:
