@@ -55,7 +55,7 @@ jobs:
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
-          npm incrementVersion
+          npm run incrementVersion
           git tag v$(jq -r .version package.json)
           git push --tags
 
