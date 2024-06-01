@@ -122,6 +122,7 @@ jobs:
           npm run incrementBranchVersion
 
       - name: Push tags
+        if: ${{ steps.extract_branch.outputs.merge_branch_type != 'none' }} 
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
