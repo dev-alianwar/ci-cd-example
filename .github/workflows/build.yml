@@ -1,4 +1,4 @@
-name: Build module
+name: Build Job
 
 on:
   workflow_call:
@@ -42,21 +42,25 @@ jobs:
 
       - name: Set package version (master/development)
         if: ${{ !inputs.dry_run && inputs.is_master }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GA_PAT }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
           npm run incrementVersion
           git tag v$(jq -r .version package.json)
-          git push --tags
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags
 
-      - name: Set package version (release or hotfix)
+      - name: Set package version (dev-env)
         if: ${{ !inputs.dry_run && !inputs.is_master }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GA_PAT }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
-          BRANCH=${GITHUB_REF##*/} npm incrementBranchVersion
+          BRANCH=${GITHUB_REF##*/} npm run incrementBranchVersion
           git tag v$(jq -r .version package.json)
-          git push --tags
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags
 
       - name: Output package version
         id: output_version
@@ -68,4 +72,4 @@ jobs:
 
       - name: Build (with new package version)
         if: ${{ !inputs.dry_run }}
-        run: npm run build -- --environment PACKAGE_VERSION:v$(jq -r .version package.json),GIT_SHA:${{ github.sha }}
+        run: npm run build --
