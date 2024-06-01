@@ -64,4 +64,4 @@ jobs:
 
       - name: Build (with new package version)
         if: ${{ !inputs.dry_run }}
-        run: npm run build -- --environment PACKAGE_VERSION:v$(jq -r .version package.json),GIT_SHA:${{ github.sha }}
+        run: npm run build PACKAGE_VERSION:v$(jq -r .version package.json),GIT_SHA:${{ github.sha }}
