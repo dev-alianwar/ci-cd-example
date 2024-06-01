@@ -68,7 +68,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
-          git tag -l | xargs git tag -d
+          git tag | xargs git tag -d
           git fetch --tags -f
           npm run incrementVersion
 
