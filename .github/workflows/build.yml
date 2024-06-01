@@ -64,17 +64,6 @@ jobs:
           git tag v$(jq -r .version package.json)
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags
 
-      - name: Set package version (dev-env)
-        if: ${{ !inputs.dry_run && !inputs.is_master && steps.check_tag_dev.outputs.tag_exists == 'false' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          git tag -l | xargs git tag -d
-          git fetch --tags -f
-          BRANCH=${GITHUB_REF##*/} npm run incrementBranchVersion
-          git tag v$(jq -r .version package.json)
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags
-
       - name: Output package version
         id: output_version
         run: echo "new_package_version=$(jq -r .version package.json)" >> $GITHUB_ENV
