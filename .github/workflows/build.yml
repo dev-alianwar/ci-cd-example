@@ -1,96 +1,64 @@
-name: Build Job
+name: Update Version and Tag
 
 on:
   workflow_call:
     secrets:
-      access_token:
+      ACCESS_TOKEN:
         required: true
-
-    inputs:
-      dry_run:
-        required: true
-        type: boolean
-      is_master:
-        required: true
-        type: boolean
-      
-    outputs:
-      new_package_version:
-        value: ${{ jobs.build_module.outputs.new_package_version }}
 
 jobs:
-  build_module:
+  update_version_and_tag:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    outputs:
-      new_package_version: ${{ steps.output_version.outputs.new_package_version }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 3
-          ref: ${{ github.event.release.target_commitish }}
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Restore node_modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-npm-${{ github.sha }}
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
 
-      - name: Setup git bot user
-        run: |
-          git config --local user.email "dev.alianwar@gmail.com"
-          git config --local user.name "GitHub Action"
+    - name: Install jq
+      run: sudo apt-get install -y jq
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+    - name: Read current version from package.json
+      id: read_version
+      run: |
+        current_version=$(jq -r '.version' package.json)
+        echo "current_version=$current_version" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        run: npm install
+    - name: Determine new version
+      id: determine_version
+      run: |
+        IFS='.' read -r major minor patch <<< "${{ env.current_version }}"
+        new_patch=$((patch + 1))
+        new_version="$major.$minor.$new_patch"
+        echo "new_version=$new_version" >> $GITHUB_ENV
+      env:
+        current_version: ${{ env.current_version }}
 
-      - name: Check if working directory is clean
-        run: |
-          if [[ -n $(git status --porcelain) ]]; then
-            echo "Working directory is not clean. Stashing changes..."
-            git stash push --keep-index --quiet
-            STASHED_CHANGES=true
-          else
-            echo "Working directory is clean."
-            STASHED_CHANGES=false
-          fi
+    - name: Update package.json version
+      run: |
+        jq --arg new_version "$new_version" '.version = $new_version' package.json > package.tmp.json && mv package.tmp.json package.json
+      env:
+        new_version: ${{ env.new_version }}
 
-      - name: Set package version 
-        if: ${{ !inputs.dry_run && inputs.is_master }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.access_token }}
-        run: |
-          git tag | xargs git tag -d
-          git fetch --tags -f
-          npm run incrementVersion
+    - name: Commit version update
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        new_version: ${{ env.new_version }}
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add package.json
+        git commit -m "chore: bump version to $new_version"
+        git push
 
-      - name: Push tags
-        env:
-          GITHUB_TOKEN: ${{ secrets.access_token }}
-        run: |
-          new_version=$(jq -r .version package.json)
-          git tag "v${new_version}"
-          git push origin "v${new_version}
-
-      - name: Output package version
-        id: output_version
-        run: echo "new_package_version=$(jq -r .version package.json)" >> $GITHUB_ENV
-
-      - name: Build (dry-run)
-        if: ${{ inputs.dry_run }}
-        run: npm run build
-
-      - name: Build (with new package version)
-        if: ${{ !inputs.dry_run }}
-        env:
-          PACKAGE_VERSION: $(jq -r .version package.json)
-          GIT_SHA: ${{ github.sha }}
-        run: npm run build
+    - name: Create GitHub tag
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        new_version: ${{ env.new_version }}
+      run: |
+        git tag "v${new_version}"
+        git push origin "v${new_version}"

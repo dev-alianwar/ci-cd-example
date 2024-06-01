@@ -17,7 +17,7 @@ jobs:
     needs: setup
     uses: dev-alianwar/ci-cd-example/.github/workflows/build.yml@master
     secrets:
-      access_token: ${{ secrets.ACCESS_TOKEN }}
+      ACCESS_TOKEN: ${{ secrets.GH_PAT }}
     with:
       dry_run: false
       is_master: true
