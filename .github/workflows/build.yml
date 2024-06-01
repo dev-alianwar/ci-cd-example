@@ -40,19 +40,6 @@ jobs:
           git config --local user.email "bot@gmail.com"
           git config --local user.name "GitHub Action"
 
-      - name: Check if tag exists (master/development)
-        id: check_tag_master
-        if: ${{ inputs.is_master }}
-        run: |
-          TAG="v$(jq -r .version package.json)"
-          if git rev-parse "$TAG" >/dev/null 2>&1
-          then
-            echo "Tag $TAG already exists."
-            echo "::set-output name=tag_exists::true"
-          else
-            echo "::set-output name=tag_exists::false"
-          fi
-
       - name: Set package version (master/development)
         if: ${{ !inputs.dry_run && inputs.is_master && steps.check_tag_master.outputs.tag_exists == 'false' }}
         env:
