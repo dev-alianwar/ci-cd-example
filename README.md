@@ -35,7 +35,7 @@ CLOUDFRONT_DISTRIBUTION_ID: Your CloudFront distribution ID.
 
 ## Create Github Secrets
 
-## Read and write permissions 
+## Workflow permissions 
 Settings -> Actions -> General -> Workflow permissions
 You need to turn on Read and write permissions to push tags to github repository
 
