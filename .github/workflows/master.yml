@@ -19,6 +19,7 @@ jobs:
     with:
       dry_run: false
       is_master: true
+      GH_PAT: ${{ secrets.GH_PAT }}
 
   # update-version:
   #   runs-on: ubuntu-latest
