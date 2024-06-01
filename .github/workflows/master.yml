@@ -16,10 +16,12 @@ jobs:
   build:
     needs: setup
     uses: dev-alianwar/ci-cd-example/.github/workflows/build.yml@master
+    secrets:
+      access_token: ${{ secrets.ACCESS_TOKEN }}
     with:
       dry_run: false
       is_master: true
-      access_token: ${{ secrets.ACCESS_TOKEN }}
+      
 
   # update-version:
   #   runs-on: ubuntu-latest
