@@ -44,14 +44,6 @@ jobs:
           git config --local user.email "dev.alianwar@gmail.com"
           git config --local user.name "GitHub Action"
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install
-
       - name: Check if working directory is clean
         run: |
           if [[ -n $(git status --porcelain) ]]; then
@@ -80,14 +72,52 @@ jobs:
           echo "Merged branch: $merged_branch"
           echo "::set-output name=branch::$merged_branch"
 
-      - name: Set package version 
-        if: ${{ !inputs.dry_run && inputs.is_master }}
+      - name: Check if branch name starts with 'feature/', 'fix/', or 'hotfix/'
+        run: |
+          branch_name="${{ steps.extract_branch.outputs.branch }}"
+          if [[ "$branch_name" == feature/* ]]; then
+            echo "feature/* branch merged"
+            echo "::set-output name=merge_branch_type::feature"
+          if [[ "$branch_name" == fix/* ]]; then
+            echo "fix/* branch merged"
+            echo "::set-output name=merge_branch_type::fix"
+          else if [[ "$branch_name" == hotfix/*  ]]
+            echo "hotfix/* branch merged"
+            echo "::set-output name=merge_branch_type::hotfix"
+          else
+            echo "Branch does not start with feature/, fix/, or hotfix/"
+            echo "::set-output name=merge_branch_type::none"
+          fi
+
+      - name: Abort workflow if branch name doesn't match criteria
+        if: ${{ steps.check_branch.outputs.merge_branch_type == 'none' }}
+        run: exit 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Increment Version
+        if: ${{ steps.check_branch.outputs.matched_branch == 'hotfix' }}
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
           npm run incrementVersion
+
+      - name: Increment Branch Version
+        if: ${{ steps.check_branch.outputs.matched_branch == 'feature' || steps.check_branch.outputs.matched_branch == 'fix' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.access_token }}
+        run: |
+          git tag -l | xargs git tag -d
+          git fetch --tags -f
+          npm run incrementBranchVersion
 
       - name: Push tags
         env:
