@@ -74,22 +74,32 @@ jobs:
 
       - name: Check if branch name starts with 'feature/', 'fix/', or 'hotfix/'
         run: |
+          # Retrieve the branch name from the previous step's output
           branch_name="${{ steps.extract_branch.outputs.branch }}"
+          
+          # Check if the branch name matches specific patterns
           if [[ "$branch_name" == feature/* ]]; then
-            echo "feature/* branch merged"
-            echo "::set-output name=merge_branch_type::feature"
+            echo "feature branch merged"
+            # Set the merge_branch_type output variable to 'feature'
+            branch_type::"feature"
           elif [[ "$branch_name" == fix/* ]]; then
-            echo "fix/* branch merged"
-            echo "::set-output name=merge_branch_type::fix"
+            echo "fix branch merged"
+            # Set the merge_branch_type output variable to 'fix'
+            branch_type="fix"
           elif [[ "$branch_name" == hotfix/* ]]; then
-            echo "hotfix/* branch merged"
-            echo "::set-output name=merge_branch_type::hotfix"
+            echo "hotfix branch merged"
+            # Set the merge_branch_type output variable to 'hotfix'
+            branch_type="hotfix"
           else
             echo "Branch does not start with feature/, fix/, or hotfix/"
-            echo "::set-output name=merge_branch_type::none"
+            # Set the merge_branch_type output variable to 'none'
+            branch_type="none"
           fi
 
-          echo "Merged branch $merge_branch_type"
+          echo "::set-output name=merge_branch_type::$branch_type"
+          # Echo the merged branch type for confirmation
+          echo "Merged branch type: $merge_branch_type"
+
 
       - name: Abort workflow if branch name doesn't match criteria
         if: ${{ steps.extract_branch.outputs.merge_branch_type == 'none' }} 
