@@ -9,10 +9,10 @@ on:
       is_master:
         required: true
         type: boolean
-      GH_PAT:
+      access_token:
         required: true
         type: string
-        
+
     outputs:
       new_package_version:
         value: ${{ jobs.build_module.outputs.new_package_version }}
@@ -65,7 +65,7 @@ jobs:
       - name: Set package version 
         if: ${{ !inputs.dry_run && inputs.is_master }}
         env:
-          GITHUB_TOKEN: ${{ inputs.GH_PAT }}
+          GITHUB_TOKEN: ${{ inputs.access_token }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
@@ -73,7 +73,7 @@ jobs:
 
       - name: Push tags
         env:
-          GITHUB_TOKEN: ${{ inputs.GH_PAT }}
+          GITHUB_TOKEN: ${{ inputs.access_token }}
         run: |
           set -e
           echo "GITHUB_TOKEN: $GITHUB_TOKEN"
