@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "incrementVersion": "sh ./build_scripts/increment-version.sh",
-    "incrementBranchVersion": "sh ./build_scripts/increment-branch-version.sh"
+    "incrementVersion": "sh ./build_scripts/increment_version.sh",
+    "incrementBranchVersion": "sh ./build_scripts/increment_branch_version.sh"
   },
   "dependencies": {
     "react": "^18",
