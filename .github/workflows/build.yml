@@ -3,8 +3,8 @@ name: Build Job
 on:
   workflow_call:
     secrets:
-        access_token:
-          description: 'Personal access token'
+      access_token:
+        required: true
 
     inputs:
       dry_run:
