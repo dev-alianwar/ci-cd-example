@@ -45,11 +45,11 @@ jobs:
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
-          npm incrementVersion
+          npm run incrementVersion
           git tag v$(jq -r .version package.json)
           git push --tags
 
-      - name: Set package version (dev-env)
+      - name: Set package version (release or hotfix)
         if: ${{ !inputs.dry_run && !inputs.is_master }}
         run: |
           git tag -l | xargs git tag -d
