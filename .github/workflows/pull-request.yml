@@ -4,20 +4,63 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
 
+
 jobs:
-  setup:
-    uses: dev-alianwar/ci-cd-example/.github/workflows/setup.yml@master
-    secrets: inherit
-
-  unit-tests:
-    needs: setup
-    secrets: inherit
-    uses: dev-alianwar/ci-cd-example/.github/workflows/test.yml@master
-
   build_module:
-    needs: [setup, unit-tests]
-    secrets: inherit
-    uses: dev-alianwar/ci-cd-example/.github/workflows/build.yml@master
-    with:
-      dry_run: true
-      is_master: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 3
+          ref: ${{ github.event.release.target_commitish }}
+
+      - name: Setup git bot user
+        run: |
+          git config --local user.email "dev.alianwar@gmail.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Check if working directory is clean
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Working directory is not clean. Stashing changes..."
+            git stash push --keep-index --quiet
+            STASHED_CHANGES=true
+          else
+            echo "Working directory is clean."
+            STASHED_CHANGES=false
+          fi
+
+      - name: Extract branch name from merge commit
+        id: extract_branch
+        run: |
+          # Get the commit message of the head commit
+          commit_message=$(git log -1 --pretty=%B)
+          echo "Commit message: $commit_message"
+          
+          # Extract branch name from commit message
+          if [[ "$commit_message" =~ Merge\ pull\ request\ #[0-9]+\ from\ ([^/]+)/([^[:space:]]+) ]]; then
+            merged_branch=${BASH_REMATCH[2]}
+          else
+            merged_branch="unknown"
+          fi
+          
+          echo "Merged branch: $merged_branch"
+          echo "::set-output name=branch::$merged_branch"
+
+      - name: Check if branch name starts with 'hotfix/'
+        run: |
+          branch_name="${{ steps.extract_branch.outputs.branch }}"
+          if [[ "$branch_name" == hotfix/*  ]]
+            echo "hotfix/* branch merged"
+            echo "::set-output name=merge_branch_type::hotfix"
+          else
+            echo "Branch does not start with hotfix/"
+            echo "::set-output name=merge_branch_type::none"
+          fi
+
+      - name: Abort workflow if branch name doesn't match criteria
+        if: ${{ steps.check_branch.outputs.merge_branch_type == 'none' }}
+        run: exit 1
