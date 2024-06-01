@@ -76,22 +76,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
-          set -e
-          echo "GITHUB_TOKEN: ${{ secrets.access_token }}"
-          echo "Repository URL: https://github.com/${{ github.repository }}.git"
-          VERSION=$(jq -r .version package.json)
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags 2>&1 | {
-            while IFS= read -r line; do
-              if [[ $line == *"To https"* && $line == *"already exists"* ]]; then
-                echo "Tag already exists. Skipping push."
-                exit 0
-              elif [[ $line == *"Permission denied"* ]]; then
-                echo "Permission denied. Make sure you have the necessary permissions."
-                exit 1
-              fi
-              echo "$line"
-            done
-            }
+          new_version=$(jq -r .version package.json)
+          git tag "v${new_version}"
+          git push origin "v${new_version}
 
       - name: Output package version
         id: output_version
