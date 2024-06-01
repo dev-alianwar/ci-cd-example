@@ -40,16 +40,24 @@ jobs:
           git config --local user.email "bot@gmail.com"
           git config --local user.name "GitHub Action"
 
-      - name: Set package version (master/development)
-        if: ${{ !inputs.dry_run && inputs.is_master && steps.check_tag_master.outputs.tag_exists == 'false' }}
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set package version 
+        if: ${{ !inputs.dry_run && inputs.is_master }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
-          npm run incrementVersion
+          yarn incrementVersion
           git tag v$(jq -r .version package.json)
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags
+          git push --tags
 
       - name: Output package version
         id: output_version
@@ -58,9 +66,6 @@ jobs:
       - name: Build (dry-run)
         if: ${{ inputs.dry_run }}
         run: npm run build
-      
-      - name: Install dependencies
-        run: npm install
 
       - name: Build (with new package version)
         if: ${{ !inputs.dry_run }}
