@@ -81,7 +81,7 @@ jobs:
           if [[ "$branch_name" == feature/* ]]; then
             echo "feature branch merged"
             # Set the merge_branch_type output variable to 'feature'
-            branch_type::"feature"
+            branch_type="feature"
           elif [[ "$branch_name" == fix/* ]]; then
             echo "fix branch merged"
             # Set the merge_branch_type output variable to 'fix'
