@@ -1,14 +1,14 @@
 {
   "name": "web-app",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "incrementVersion": "sh ./build_scripts/increment_version.sh",
-    "incrementBranchVersion": "sh ./build_scripts/increment_branch_version.sh"
+    "incrementVersion": "npm version patch",
+    "incrementBranchVersion": "npm version prerelease --preid=beta"
   },
   "dependencies": {
     "react": "^18",
