@@ -77,7 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
           set -e
-          echo "GITHUB_TOKEN: $GITHUB_TOKEN"
+          echo "GITHUB_TOKEN: ${{ secrets.access_token }}"
           echo "Repository URL: https://github.com/${{ github.repository }}.git"
           VERSION=$(jq -r .version package.json)
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git --tags 2>&1 | {
