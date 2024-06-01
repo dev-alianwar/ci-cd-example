@@ -6,7 +6,6 @@ on:
       dry_run:
         required: true
         type: boolean
-
       is_master:
         required: true
         type: boolean
@@ -19,14 +18,16 @@ jobs:
   build_module:
     runs-on: [self-hosted, linux, x64]
     timeout-minutes: 10
+
     outputs:
-      new_package_version: ${{ steps.new_package_version.outputs.new_package_version }}
+      new_package_version: ${{ steps.output_version.outputs.new_package_version }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 3
-          ref: ${{github.event.release.target_commitish}}
+          ref: ${{ github.event.release.target_commitish }}
 
       - name: Restore node_modules
         uses: actions/cache@v3
@@ -49,7 +50,7 @@ jobs:
           git push --tags
 
       - name: Set package version (dev-env)
-        if: ${{ !inputs.dry_run && !inputs.is_master}}
+        if: ${{ !inputs.dry_run && !inputs.is_master }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
@@ -58,8 +59,8 @@ jobs:
           git push --tags
 
       - name: Output package version
-        id: new_package_version
-        run: echo "::set-output name=new_package_version::$(jq -r .version package.json)"
+        id: output_version
+        run: echo "new_package_version=$(jq -r .version package.json)" >> $GITHUB_ENV
 
       - name: Build (dry-run)
         if: ${{ inputs.dry_run }}
@@ -67,4 +68,4 @@ jobs:
 
       - name: Build (with new package version)
         if: ${{ !inputs.dry_run }}
-        run: npm run build --environment PACKAGE_VERSION:v$(jq -r .version package.json),GIT_SHA:${{ github.sha }}
+        run: npm run build -- --environment PACKAGE_VERSION:v$(jq -r .version package.json),GIT_SHA:${{ github.sha }}
