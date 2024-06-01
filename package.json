@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "incrementVersion": "npm version --no-git-tag-version $(calver --prev $(git tag -l \"v*.*.*-[0-9]*\" --sort -version:refname | head -n 1) --silent)",
-    "incrementBranchVersion": "npm version --no-git-tag-version $(calver --prefix \"${BRANCH}.\" --prev $(git tag -l \"v*-${BRANCH}.*\" --sort -version:refname | head -n 1) --silent)"
+    "incrementVersion": "npm version patch",
+    "incrementBranchVersion": "npm version prerelease --preid=beta"
   },
   "dependencies": {
     "react": "^18",

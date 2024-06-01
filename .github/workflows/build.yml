@@ -43,7 +43,7 @@ jobs:
       - name: Set package version (master/development)
         if: ${{ !inputs.dry_run && inputs.is_master }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GA_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
@@ -54,7 +54,7 @@ jobs:
       - name: Set package version (dev-env)
         if: ${{ !inputs.dry_run && !inputs.is_master }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GA_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git tag -l | xargs git tag -d
           git fetch --tags -f
