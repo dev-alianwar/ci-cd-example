@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "incrementVersion": "npm version patch",
-    "incrementBranchVersion": "npm version prerelease --preid=beta"
+    "incrementVersion": "sh ./build_scripts/increment-version.sh",
+    "incrementBranchVersion": "sh ./build_scripts/increment-branch-version.sh"
   },
   "dependencies": {
     "react": "^18",
