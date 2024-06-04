@@ -99,7 +99,6 @@ jobs:
 
           # Echo the merged branch type for confirmation
           echo "Merged branch type: $branch_type"
-          echo "merge_branch_type=$branch_type" >> $GITHUB_ENV
 
       - name: Abort workflow if branch name doesn't match criteria
         if: ${{ steps.extract_branch_type.outputs.merge_branch_type == 'none' }} 
