@@ -65,3 +65,29 @@ jobs:
         if: ${{ steps.check_branch.outputs.merge_branch_type == 'none' }}
         run: exit 1
 
+  branch-name:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Determine branch type
+      id: set_branch_type
+      run: |
+        if [[ $GITHUB_REF == refs/heads/feature/* ]]; then
+          branch_type=feature
+        else
+          branch_type=other
+        fi
+        echo "merge_branch_type=$branch_type" >> $GITHUB_ENV
+
+    - name: Print branch type
+      run: echo "The merge branch type is $merge_branch_type"
+
+    - name: Run if feature branch
+      if: env.merge_branch_type == 'feature'
+      run: echo "This step runs only on feature branches"
+      
+    - name: Run if not feature branch
+      if: env.merge_branch_type != 'feature'
+      run: echo "This step runs only on non-feature branches"
