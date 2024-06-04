@@ -99,9 +99,10 @@ jobs:
 
           # Echo the merged branch type for confirmation
           echo "Merged branch type: $branch_type"
+          echo "merge_branch_type=$branch_type" >> $GITHUB_ENV
 
       - name: Abort workflow if branch name doesn't match criteria
-        if: ${{ steps.extract_branch_type.outputs.merge_branch_type == 'none' }} 
+        if: env.merge_branch_type == 'none'
         run: exit 1
 
       - name: Setup Node
@@ -113,7 +114,7 @@ jobs:
         run: npm install
 
       - name: Increment Version
-        if: ${{ steps.extract_branch_type.outputs.merge_branch_type == 'hotfix' }}
+        if: env.merge_branch_type == 'hotfix'
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
@@ -122,7 +123,7 @@ jobs:
           npm run incrementVersion
 
       - name: Increment Branch Version
-        if: ${{ steps.branch_type.outputs.merge_branch_type == 'feature' || steps.branch_type.outputs.merge_branch_type == 'fix' }}
+        if: env.merge_branch_type == 'feature' || env.merge_branch_type == 'fix'
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
@@ -131,7 +132,7 @@ jobs:
           npm run incrementBranchVersion
 
       - name: Push tags
-        if: ${{ steps.branch_type.outputs.merge_branch_type != 'none' }} 
+        if: env.merge_branch_type != 'none'
         env:
           GITHUB_TOKEN: ${{ secrets.access_token }}
         run: |
